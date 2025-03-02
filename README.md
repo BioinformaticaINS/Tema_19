@@ -75,6 +75,16 @@ mkdir nanopore
 cd nanopore
 
 flye --nano-raw /home/ins_user/genomics/raw_data/SRR19552033_1_trim.fastq.gz --threads 2 --genome-size 5m --out-dir m01_flye_nanopore
+```
+
+```bash
+cat m01_flye_nanopore/assembly_info.txt 
+
+#seq_name	length	cov.	circ.	repeat	mult.	alt_group	graph_path
+contig_1	4809453	104	Y	N	1	*	1
+contig_2	89088	146	Y	N	1	*	2
+contig_3	17975	199	Y	Y	1	*	3
+contig_4	16755	182	Y	N	2	*	4
 
 mv m01_flye_nanopore/assembly.fasta m01_flye.fasta
 
@@ -119,6 +129,18 @@ mkdir fasta
 cp /home/ins_user/genomics/assembly/illumina/m01_unicycler.fasta /home/ins_user/genomics/assembly/nanopore/m01_flye.fasta /home/ins_user/genomics/assembly/nanopore/racon/m01_flye.racon.fasta fasta
 
 checkm lineage_wf -t 2 -x fasta fasta . > checkm.out
+```
+
+```bash
+cat checkm.out
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Bin Id                    Marker lineage           # genomes   # markers   # marker sets    0     1     2    3   4   5+   Completeness   Contamination   Strain heterogeneity  
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  m01_unicycler    f__Enterobacteriaceae (UID5167)       82         1240          324         4    1231   5    0   0   0       99.60            0.72              20.00          
+  m01_flye.racon   f__Enterobacteriaceae (UID5167)       82         1240          324         4    1233   3    0   0   0       99.60            0.26               0.00          
+  m01_flye         f__Enterobacteriaceae (UID5167)       82         1240          324        137   1089   14   0   0   0       88.87            1.16               0.00          
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ```
 
 
