@@ -8,6 +8,7 @@
 4. Ensamblaje de genomas de datos de secuenciación Nanopore
 5. Obtención de las metricas de los genomas ensamblados
 6. Validación de los genomas ensamblados
+7. Identificación taxonómica
 
 ## Metodología:
 
@@ -16,7 +17,7 @@
 ### Instalar los siguientes programas en un ambiente de conda
 
 ```bash
-conda create -n assembly -c bioconda unicycler flye quast checkm-genome racon
+conda create -n assembly -c bioconda unicycler flye quast checkm-genome racon barrnap
 ```
 > **Comentario:** 
 > - `conda create`: Este es el comando base para crear un nuevo entorno Conda.
@@ -27,6 +28,7 @@ conda create -n assembly -c bioconda unicycler flye quast checkm-genome racon
 > - `quast`: Una herramienta para evaluar la calidad de los ensamblajes de genomas.
 > - `checkm-genome`: Una herramienta para evaluar la integridad y contaminación de los ensamblajes de genomas.
 > - `racon`: Una herramienta para pulir ensamblajes de genomas utilizando lecturas de larga longitud.
+> - `barrnap`: Es una herramienta bioinformática que se utiliza para predecir la ubicación de los genes de ARN ribosómico (ARNr) dentro de secuencias de ADN.
 
 ## 2. Obtención de los datos de secuenciación 
 
@@ -42,6 +44,10 @@ gdown https://drive.google.com/uc?id=12aOQWJk7rvDbssb44O3qNn9pRo641H7C
 ### Datos de Nanopore
 
 gdown https://drive.google.com/uc?id=1hjDKjprl7yhbnoPP7dTOBZVCjN88QVbH
+
+### Genomas de referencia
+
+gdown https://drive.google.com/uc?id=11ERl-rWpOnXR54ZelpdDLJIMONodbURC
 ```
 
 ## 3. Ensamblaje de genomas de datos de secuenciación Illumina
@@ -142,6 +148,48 @@ cat checkm.out
   m01_flye         f__Enterobacteriaceae (UID5167)       82         1240          324        137   1089   14   0   0   0       88.87            1.16               0.00          
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ```
+
+## 7. Identificación taxonómica
+
+```bash
+cd ~/genomics/
+
+mkdir taxonomy
+
+cd taxonomy
+
+barrnap /home/ins_user/genomics/assembly/nanopore/racon/m01_flye.racon.fasta --threads 2 --outseq m01_rna.fasta
+```
+
+```bash
+grep ">" m01_rna.fasta 
+>16S_rRNA::contig_1:4272477-4274015(-)
+>16S_rRNA::contig_1:104633-106171(+)
+>16S_rRNA::contig_1:237971-239509(+)
+>16S_rRNA::contig_1:150-1686(+)
+>16S_rRNA::contig_1:3552695-3554232(-)
+>16S_rRNA::contig_1:278263-279797(+)
+>16S_rRNA::contig_1:919730-921259(+)
+>23S_rRNA::contig_1:921708-924609(+)
+>23S_rRNA::contig_1:4269128-4272028(-)
+>23S_rRNA::contig_1:239866-242765(+)
+>23S_rRNA::contig_1:2043-4942(+)
+>23S_rRNA::contig_1:3549439-3552338(-)
+>23S_rRNA::contig_1:106619-109518(+)
+>23S_rRNA::contig_1:280154-283050(+)
+>5S_rRNA::contig_1:5039-5150(+)
+>5S_rRNA::contig_1:109615-109726(+)
+>5S_rRNA::contig_1:242862-242973(+)
+>5S_rRNA::contig_1:283147-283258(+)
+>5S_rRNA::contig_1:924706-924817(+)
+>5S_rRNA::contig_1:3549231-3549342(-)
+>5S_rRNA::contig_1:4268920-4269031(-)
+>5S_rRNA::contig_1:4268675-4268786(-)
+```
+
+unzip /home/ins_user/genomics/raw_data/genomes_ncbi.zip -d .
+
+
 
 
 
