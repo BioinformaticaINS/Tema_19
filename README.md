@@ -9,6 +9,7 @@
 5. Obtención de las metricas de los genomas ensamblados
 6. Validación de los genomas ensamblados
 7. Identificación taxonómica
+8. Identificación de SNPs
 
 ## Metodología:
 
@@ -29,6 +30,18 @@ conda create -n assembly -c bioconda unicycler flye quast checkm-genome racon ba
 > - `checkm-genome`: Una herramienta para evaluar la integridad y contaminación de los ensamblajes de genomas.
 > - `racon`: Una herramienta para pulir ensamblajes de genomas utilizando lecturas de larga longitud.
 > - `barrnap`: Es una herramienta bioinformática que se utiliza para predecir la ubicación de los genes de ARN ribosómico (ARNr) dentro de secuencias de ADN.
+> - `aniclustermap`: Es una herramienta que utiliza el Average Nucleotide Identity (ANI) para crear mapas de clústeres genómicos, útil para la comparación y clasificación de genomas
+> - `snippy`: Es una herramienta para la detección rápida de variantes genéticas (SNPs, INDELs) en genomas bacterianos, útil para estudios de genómica comparativa y epidemiología.
+
+### Instalar el siguiente programa en Ubuntu
+
+```bash
+cd ~/genomics/software
+
+wget https://github.com/rrwick/Bandage/releases/download/v0.8.1/Bandage_Ubuntu_dynamic_v0_8_1.zip
+
+unzip Bandage_Ubuntu_dynamic_v0_8_1.zip
+```
 
 ## 2. Obtención de los datos de secuenciación 
 
@@ -71,6 +84,7 @@ mv m01_unicycler_illumina/assembly.fasta m01_unicycler.fasta
 
 mv m01_unicycler_illumina/assembly.gfa m01_unicycler.gfa
 ```
+
 ## 4. Ensamblaje de genomas de datos de secuenciación Nanopore
 
 ```bash
@@ -82,6 +96,10 @@ cd nanopore
 
 flye --nano-raw /home/ins_user/genomics/raw_data/SRR19552033_1_trim.fastq.gz --threads 2 --genome-size 5m --out-dir m01_flye_nanopore
 ```
+
+> **Comentario:** 
+> - `--nano-raw`: Indica que las lecturas son datos de Nanopore (R9)
+> - `--genome-size 5m`: Esta opción proporciona una estimación del tamaño del genoma que se va a ensamblar.
 
 ```bash
 cat m01_flye_nanopore/assembly_info.txt 
@@ -105,7 +123,12 @@ mkdir racon
 cd racon
 
 minimap2 -t 2 /home/ins_user/genomics/assembly/nanopore/m01_flye.fasta /home/ins_user/genomics/raw_data/SRR19551969_R1.trim.fastq.gz > flye.minimap4racon1.paf
+```
 
+> **Comentario:** 
+> - `flye.minimap4racon1.paf`: Es el nombre del archivo de salida donde se guardarán los resultados del alineamiento en formato PAF (Pairwise mApping Format).
+
+```bash
 racon -t 2 /home/ins_user/genomics/raw_data/SRR19551969_R1.trim.fastq.gz flye.minimap4racon1.paf /home/ins_user/genomics/assembly/nanopore/m01_flye.fasta > m01_flye.racon.fasta
 ```
 
@@ -120,6 +143,9 @@ cd validation
 
 quast.py -m 1000 -o quast /home/ins_user/genomics/assembly/illumina/m01_unicycler.fasta /home/ins_user/genomics/assembly/nanopore/m01_flye.fasta /home/ins_user/genomics/assembly/nanopore/racon/m01_flye.racon.fasta
 ```
+
+> **Comentario:** 
+> - `-m 1000`: Esta opción establece la longitud mínima de contig para ser considerada en la evaluación a 1000 pares de bases. Solo los contigs que tengan al menos 1000 pares de bases de longitud se incluirán en el análisis. Esto filtra contigs cortos y potencialmente poco fiables.
 
 ## 6. Validación de los genomas ensamblados
 
@@ -137,6 +163,13 @@ cp /home/ins_user/genomics/assembly/illumina/m01_unicycler.fasta /home/ins_user/
 checkm lineage_wf -t 2 -x fasta fasta . > checkm.out
 ```
 
+> **Comentario:** 
+> - `lineage_wf`: Especifica el flujo de trabajo a utilizar. lineage_wf es un flujo de trabajo de CheckM que utiliza información filogenética (linaje) para seleccionar los marcadores genéticos más apropiados para la evaluación. Esto permite una evaluación más precisa y específica para el organismo en cuestión.
+> - `-x fasta`: Especifica el formato de los archivos de entrada. En este caso, los archivos de entrada son genomas ensamblados en formato FASTA.
+> - `fasta`: Es el directorio de entrada donde se encuentran los archivos FASTA de los genomas que se van a evaluar. CheckM buscará en este directorio todos los archivos con extensión ".fasta" y los analizará.
+> - `.`: Indica el directorio de salida. En este caso, los resultados se guardarán en el directorio actual.
+> - `checkm.out`: Es el nombre del archivo donde se guardará la salida del análisis de CheckM.
+
 ```bash
 cat checkm.out
 
@@ -148,6 +181,17 @@ cat checkm.out
   m01_flye         f__Enterobacteriaceae (UID5167)       82         1240          324        137   1089   14   0   0   0       88.87            1.16               0.00          
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ```
+
+> **Comentario:** 
+> - `Bin Id`: Identificador del ensamblaje del genoma.
+> - `Marker lineage`: Linaje del marcador utilizado para la evaluación. 
+> - `# genomes`: Número de genomas de referencia utilizados en la evaluación.
+> - `# markers`: Número total de marcadores genéticos (genes) usados en la evaluación.
+> - `# marker sets`: Número de conjuntos de marcadores usados.
+> - `0, 1, 2, 3, 4, 5+`: Distribución de los marcadores en los conjuntos.
+> - `Completeness`: Porcentaje de marcadores esperados que se encontraron en el ensamblaje. Un valor alto indica un ensamblaje más completo.
+> - `Contamination`: Porcentaje de marcadores duplicados o inesperados, lo que sugiere posible contaminación. Un valor bajo es mejor.
+> - `Strain heterogeneity`: Indica la posible presencia de múltiples cepas en el ensamblaje. Un valor alto sugiere heterogeneidad.
 
 ## 7. Identificación taxonómica
 
@@ -192,6 +236,12 @@ unzip /home/ins_user/genomics/raw_data/genomes_ncbi.zip -d .
 
 ANIclustermap -i genomes_ncbi -o ANIclustermap_result --fig_width 20 --fig_height 15 --annotation
 ```
+
+> **Comentario:** 
+> - `-i genomes_ncbi`: Especifica el directorio de entrada donde se encuentran los archivos FASTA de los genomas.
+> - `--fig_width 20`: Define el ancho de la figura del mapa de calor en pulgadas.
+> - `--fig_height 15`: Define la altura de la figura del mapa de calor en pulgadas.
+> - `--annotation`: Esta opción indica que se deben agregar anotaciones al mapa de calor. Las anotaciones suelen ser los valores de ANI entre los genomas, lo que facilita la interpretación del mapa.
 
 ## 8. Identificación de SNPs
 
