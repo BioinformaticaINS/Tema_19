@@ -8,7 +8,7 @@
 4. Ensamblaje de genomas de datos de secuenciación Nanopore
 5. Obtención de las metricas de los genomas ensamblados
 6. Validación de los genomas ensamblados
-7. Identificación taxonómica
+7. Clasificación taxonómica
 8. Identificación de SNPs
 
 ## Metodología:
@@ -78,6 +78,8 @@ cd illumina
 
 conda activate assembly
 
+### Ensamblaje de novo del genoma con unicycler
+
 unicycler -t 2 -1 /home/ins_user/genomics/raw_data/SRR19551969_R1.trim.fastq.gz -2 /home/ins_user/genomics/raw_data/SRR19551969_R2.trim.fastq.gz -o m01_unicycler_illumina
 
 mv m01_unicycler_illumina/assembly.fasta m01_unicycler.fasta
@@ -93,6 +95,8 @@ cd ~/genomics/assembly
 mkdir nanopore
 
 cd nanopore
+
+### Ensamblaje de novo del genoma con flye
 
 flye --nano-raw /home/ins_user/genomics/raw_data/SRR19552033_1_trim.fastq.gz --threads 2 --genome-size 5m --out-dir m01_flye_nanopore
 ```
@@ -122,13 +126,12 @@ mkdir racon
 
 cd racon
 
+### Alineamiento de las lecturas de Illumina sobre el genoma ensamblado con minimap2
+
 minimap2 -t 2 /home/ins_user/genomics/assembly/nanopore/m01_flye.fasta /home/ins_user/genomics/raw_data/SRR19551969_R1.trim.fastq.gz > flye.minimap4racon1.paf
-```
 
-> **Comentario:** 
-> - `flye.minimap4racon1.paf`: Es el nombre del archivo de salida donde se guardarán los resultados del alineamiento en formato PAF (Pairwise mApping Format).
+### Pulido del genoma con racon
 
-```bash
 racon -t 2 /home/ins_user/genomics/raw_data/SRR19551969_R1.trim.fastq.gz flye.minimap4racon1.paf /home/ins_user/genomics/assembly/nanopore/m01_flye.fasta > m01_flye.racon.fasta
 ```
 
@@ -140,6 +143,8 @@ cd ~/genomics/
 mkdir validation
 
 cd validation
+
+### Calculo de las metricas de los genomas ensamblados
 
 quast.py -m 1000 -o quast /home/ins_user/genomics/assembly/illumina/m01_unicycler.fasta /home/ins_user/genomics/assembly/nanopore/m01_flye.fasta /home/ins_user/genomics/assembly/nanopore/racon/m01_flye.racon.fasta
 ```
@@ -159,6 +164,8 @@ cd checkm
 mkdir fasta
 
 cp /home/ins_user/genomics/assembly/illumina/m01_unicycler.fasta /home/ins_user/genomics/assembly/nanopore/m01_flye.fasta /home/ins_user/genomics/assembly/nanopore/racon/m01_flye.racon.fasta fasta
+
+### Validación de los genomas ensamblados con checkm
 
 checkm lineage_wf -t 2 -x fasta fasta . > checkm.out
 ```
@@ -193,7 +200,7 @@ cat checkm.out
 > - `Contamination`: Porcentaje de marcadores duplicados o inesperados, lo que sugiere posible contaminación. Un valor bajo es mejor.
 > - `Strain heterogeneity`: Indica la posible presencia de múltiples cepas en el ensamblaje. Un valor alto sugiere heterogeneidad.
 
-## 7. Identificación taxonómica
+## 7. Clasificación taxonómica
 
 ```bash
 cd ~/genomics/
@@ -201,6 +208,8 @@ cd ~/genomics/
 mkdir taxonomy
 
 cd taxonomy
+
+### Identificación de las secuencias de rRNA con barrnap
 
 barrnap /home/ins_user/genomics/assembly/nanopore/racon/m01_flye.racon.fasta --threads 2 --outseq m01_rna.fasta
 ```
@@ -232,7 +241,11 @@ grep ">" m01_rna.fasta
 ```
 
 ```bash
+### Obtención de los genomas de referencia
+
 unzip /home/ins_user/genomics/raw_data/genomes_ncbi.zip -d .
+
+### Análisis ANI (Average Nucleotide Identity)
 
 ANIclustermap -i genomes_ncbi -o ANIclustermap_result --fig_width 20 --fig_height 15 --annotation
 ```
@@ -251,6 +264,8 @@ cd ~/genomics/
 mkdir variant
 
 cd variant
+
+### Identificación de SNPs utilizando snippy
 
 snippy --cpus 2 --outdir snps --report --ref /home/ins_user/genomics/taxonomy/genomes_ncbi/Ssonnei_ATCC29930.fasta --R1 /home/ins_user/genomics/raw_data/SRR19551969_R1.trim.fastq.gz --R2 /home/ins_user/genomics/raw_data/SRR19551969_R2.trim.fastq.gz
 ```
