@@ -17,7 +17,7 @@
 ### Instalar los siguientes programas en un ambiente de conda
 
 ```bash
-conda create -n assembly -c bioconda unicycler flye quast checkm-genome racon barrnap
+conda create -n assembly -c bioconda unicycler flye quast checkm-genome racon barrnap aniclustermap snippy
 ```
 > **Comentario:** 
 > - `conda create`: Este es el comando base para crear un nuevo entorno Conda.
@@ -187,12 +187,83 @@ grep ">" m01_rna.fasta
 >5S_rRNA::contig_1:4268675-4268786(-)
 ```
 
+```bash
 unzip /home/ins_user/genomics/raw_data/genomes_ncbi.zip -d .
 
+ANIclustermap -i genomes_ncbi -o ANIclustermap_result --fig_width 20 --fig_height 15 --annotation
+```
 
+## 8. Identificación de SNPs
 
+```bash
+cd ~/genomics/
 
+mkdir variant
 
+cd variant
 
+snippy --cpus 2 --outdir snps --report --ref /home/ins_user/genomics/taxonomy/genomes_ncbi/Ssonnei_ATCC29930.fasta --R1 /home/ins_user/genomics/raw_data/SRR19551969_R1.trim.fastq.gz --R2 /home/ins_user/genomics/raw_data/SRR19551969_R2.trim.fastq.gz
+```
 
+```bash
+head -20 m01_snps/snps.txt 
 
+ReadFiles	/home/ins_user/genomics/raw_data/SRR19551969_R1.trim.fastq.gz /home/ins_user/genomics/raw_data/SRR19551969_R2.trim.fastq.gz
+Reference	/home/ins_user/genomics/taxonomy/genomes_ncbi/Ssonnei_ATCC29930.fasta
+ReferenceSize	4994001
+Software	snippy 4.6.0
+Variant-COMPLEX	29
+Variant-DEL	83
+Variant-INS	130
+Variant-SNP	1437
+VariantTotal	1679
+```
+
+```bash
+head -20 m01_snps/snps.tab
+
+CHROM	POS	TYPE	REF	ALT	EVIDENCE	FTYPE	STRAND	NT_POS	AA_POS	EFFECT	LOCUS_TAG	GENE	PRODUCT
+NZ_CP026802.1	523	snp	T	C	C:45 T:0								
+NZ_CP026802.1	1862	snp	G	A	A:49 G:0								
+NZ_CP026802.1	10134	snp	G	A	A:52 G:0								
+NZ_CP026802.1	11671	snp	G	A	A:64 G:0								
+NZ_CP026802.1	13113	snp	A	G	G:31 A:0								
+NZ_CP026802.1	16364	snp	T	C	C:42 T:0								
+NZ_CP026802.1	22709	del	TA	T	T:35 TA:0								
+NZ_CP026802.1	31415	ins	C	CCCAGCA	CCCAGCA:28 C:1								
+NZ_CP026802.1	31645	del	GT	G	G:25 GT:0								
+NZ_CP026802.1	32256	snp	C	T	T:42 C:0								
+NZ_CP026802.1	34384	snp	G	T	T:12 G:0								
+NZ_CP026802.1	38177	snp	A	C	C:47 A:0								
+NZ_CP026802.1	44156	snp	C	T	T:43 C:0								
+NZ_CP026802.1	53147	snp	T	C	C:55 T:0								
+NZ_CP026802.1	67031	snp	C	A	A:52 C:0								
+NZ_CP026802.1	67869	snp	C	T	T:23 C:0								
+NZ_CP026802.1	69761	snp	A	G	G:12 A:0								
+NZ_CP026802.1	74449	snp	C	T	T:38 C:0								
+NZ_CP026802.1	74679	snp	C	T	T:42 C:0
+```
+
+```bash
+head -20 m01_snps/snps.report.txt
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>NZ_CP026802.1:523 snp T=>C DP=45 Q=1499.17 [1]
+
+        491       501       511       521       531       541       551         
+ACAAGCTGGAACGGCAGCTCAATAAACTGCAGCACAAAGGTGAAGCACGTCGTGCCGCAACATCGGTGAAAGACGCCAAC
+........................................C.......................................
+...........        .....................C.......................................
+............       ,,,,,,,,,,,,,,,,,,,,,c,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,              ......................................
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,  ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+........................................C...    ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+........             ...................C.......................................
+,,,,,,,,,,,,,,,,,,,,,,,,, ,,,,,,,,,,,,,,c,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+........................................C..             ,,,,,,,,,,,,,,,,,,,,,,,,
+........................................C.......................................
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,c,,               ,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,c,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,c,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+........................................C.......................................
+```
