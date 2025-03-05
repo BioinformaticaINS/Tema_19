@@ -245,6 +245,8 @@ grep ">" m01_rna.fasta
 
 unzip /home/ins_user/genomics/raw_data/genomes_ncbi.zip -d .
 
+cp /home/ins_user/genomics/assembly/nanopore/racon/m01_flye.racon.fasta genomes_ncbi
+
 ### Análisis ANI (Average Nucleotide Identity)
 
 ANIclustermap -i genomes_ncbi -o ANIclustermap_result --fig_width 20 --fig_height 15 --annotation
