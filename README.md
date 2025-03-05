@@ -1,4 +1,4 @@
-# Tema 19: Obtención, calidad y limpieza de lecturas
+# Tema 19: Ensamblaje de genomas
 
 ## Estructura de la práctica:
 
