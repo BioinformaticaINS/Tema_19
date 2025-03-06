@@ -102,7 +102,7 @@ flye --nano-raw /home/ins_user/genomics/raw_data/SRR19552033_1_trim.fastq.gz --t
 ```
 
 > **Comentario:** 
-> - `--nano-raw`: Indica que las lecturas son datos de Nanopore (R9)
+> - `--nano-raw`: Indica que las lecturas son datos de Nanopore (R9).
 > - `--genome-size 5m`: Esta opción proporciona una estimación del tamaño del genoma que se va a ensamblar.
 
 ```bash
