@@ -269,7 +269,7 @@ cd variant
 
 ### Identificación de SNPs utilizando snippy
 
-snippy --cpus 2 --outdir snps --report --ref /home/ins_user/genomics/taxonomy/genomes_ncbi/Ssonnei_ATCC29930.fasta --R1 /home/ins_user/genomics/raw_data/SRR19551969_R1.trim.fastq.gz --R2 /home/ins_user/genomics/raw_data/SRR19551969_R2.trim.fastq.gz
+snippy --cpus 2 --outdir m01_snps --report --ref /home/ins_user/genomics/taxonomy/genomes_ncbi/Ssonnei_ATCC29930.fasta --R1 /home/ins_user/genomics/raw_data/SRR19551969_R1.trim.fastq.gz --R2 /home/ins_user/genomics/raw_data/SRR19551969_R2.trim.fastq.gz
 ```
 
 ```bash
